@@ -29,7 +29,7 @@ let
     name = command;
     inherit runtimeInputs;
     text = ''
-      exec ${sub}/bin/sub --name ${command} --executable "''${BASH_SOURCE[0]}" --relative "../root" -- "$@"
+      exec ${sub}/bin/sub --name ${command} --absolute "@out@/root" -- "$@"
     '';
   };
 
@@ -59,6 +59,7 @@ pkgs.stdenv.mkDerivation {
     cp -a . $out/root/
 
     install -Dm755 ${entryScript}/bin/${command} $out/bin/${command}
+    substituteInPlace $out/bin/${command} --replace-fail "@out@" "$out"
     install -Dm644 ${bashCompletion} $out/share/bash-completion/completions/${command}
     substituteInPlace $out/share/bash-completion/completions/${command} --replace-fail "@out@" "$out"
 
