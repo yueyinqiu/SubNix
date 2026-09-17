@@ -9,16 +9,6 @@ let
   cfg = config.programs."sub-nix";
 
   makeSubCli = import ../lib/make-sub-cli.nix pkgs;
-
-  cliDrvs = lib.mapAttrs (
-    name: cli:
-    makeSubCli {
-      pname = name;
-      inherit (cli) version command runtimeInputs;
-      src = cli.scripts;
-      sub = cfg.package;
-    }
-  ) cfg.clis;
 in
 {
   options.programs."sub-nix" = {
@@ -27,7 +17,6 @@ in
     package = lib.mkOption {
       type = lib.types.package;
       default = pkgs.callPackage ../packages/sub.nix { };
-      defaultText = lib.literalExpression "pkgs.callPackage ../packages/sub.nix { }";
       description = "The `sub` package to install.";
     };
 
@@ -70,6 +59,19 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    home.packages = [ cfg.package ] ++ lib.attrValues cliDrvs;
+    home.packages = [
+      cfg.package
+    ]
+    ++ lib.mapAttrsToList (
+      name: cli:
+      makeSubCli {
+        pname = name;
+        version = cli.version;
+        command = cli.command;
+        runtimeInputs = cli.runtimeInputs;
+        src = cli.scripts;
+        sub = cfg.package;
+      }
+    ) cfg.clis;
   };
 }
