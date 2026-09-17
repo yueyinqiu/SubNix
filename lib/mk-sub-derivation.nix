@@ -35,9 +35,9 @@ let
 
   bashCompletion = pkgs.writeText command ''
     _${command}() {
-      local cur
-      cur="''${COMP_WORDS[COMP_CWORD]}"
-      COMPREPLY=( $(compgen -W "$(@out@/bin/${command} --completions)" -- "$cur") )
+      local cur="''${COMP_WORDS[COMP_CWORD]}"
+      local -a args=("''${COMP_WORDS[@]:1:COMP_CWORD-1}")
+      COMPREPLY=( $(compgen -W "$(@out@/bin/${command} --completions "''${args[@]}")" -- "$cur") )
     }
     complete -F _${command} ${command}
   '';
