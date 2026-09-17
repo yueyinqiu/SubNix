@@ -10,6 +10,12 @@ pkgs:
   passthru ? { },
 }:
 let
+  completionFunctionName =
+    if builtins.match "[A-Za-z0-9_-]+" command != null then
+      "_${command}"
+    else
+      "_sub_${builtins.hashString "sha256" command}";
+
   entry = pkgs.writeShellApplication {
     name = command;
     inherit runtimeInputs;
@@ -19,12 +25,12 @@ let
   };
 
   bashCompletion = pkgs.writeText command ''
-    _${command}() {
+    ${completionFunctionName}() {
       local cur="''${COMP_WORDS[COMP_CWORD]}"
       local -a args=("''${COMP_WORDS[@]:1:COMP_CWORD-1}")
       COMPREPLY=( $(compgen -W "$("@out@/bin/${command}" --completions "''${args[@]}")" -- "$cur") )
     }
-    complete -F "_${command}" "${command}"
+    complete -F "${completionFunctionName}" "${command}"
   '';
 in
 pkgs.stdenv.mkDerivation {
