@@ -37,7 +37,7 @@ let
     _${command}() {
       local cur
       cur="''${COMP_WORDS[COMP_CWORD]}"
-      COMPREPLY=( $(compgen -W "$(${command} --completions)" -- "$cur") )
+      COMPREPLY=( $(compgen -W "$(@out@/bin/${command} --completions)" -- "$cur") )
     }
     complete -F _${command} ${command}
   '';
@@ -60,6 +60,7 @@ pkgs.stdenv.mkDerivation {
 
     install -Dm755 ${entryScript}/bin/${command} $out/bin/${command}
     install -Dm644 ${bashCompletion} $out/share/bash-completion/completions/${command}
+    substituteInPlace $out/share/bash-completion/completions/${command} --replace-fail "@out@" "$out"
 
     runHook postInstall
   '';
