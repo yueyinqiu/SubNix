@@ -11,12 +11,10 @@
       nixpkgs,
     }:
     let
-      # Only the platforms upstream ships release binaries for.
       eachSystem = nixpkgs.lib.genAttrs [
         "x86_64-linux"
         "aarch64-darwin"
       ];
-
     in
     {
       packages = eachSystem (system: {
