@@ -52,7 +52,7 @@ in
                 description = "Version of this CLI.";
               };
 
-              cmd = lib.mkOption {
+              command = lib.mkOption {
                 type = lib.types.str;
                 default = name;
                 description = "Command name, defaults to the attribute name.";
