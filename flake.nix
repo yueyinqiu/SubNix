@@ -24,7 +24,7 @@
       });
 
       lib = eachSystem (system: {
-        makeSubCli = import ./lib/mk-sub-derivation.nix nixpkgs.legacyPackages.${system};
+        makeSubCli = import ./lib/make-sub-cli.nix nixpkgs.legacyPackages.${system};
       });
 
       homeManagerModules.default = ./modules/home-manager.nix;

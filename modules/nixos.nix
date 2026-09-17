@@ -8,7 +8,7 @@
 let
   cfg = config.subnix;
 
-  mkSubDerivationFor = import ../lib/mk-sub-derivation.nix;
+  mkSubDerivationFor = import ../lib/make-sub-cli.nix;
 
   mkSubDerivation = args: mkSubDerivationFor pkgs (args // { sub = cfg.package; });
 
