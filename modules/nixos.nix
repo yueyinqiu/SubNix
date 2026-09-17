@@ -16,9 +16,10 @@ let
     name: cli:
     mkSubDerivation {
       pname = name;
-      cmd = cli.cmd;
+      version = cli.version;
+      command = cli.command;
       src = cli.scripts;
-      buildInputs = cli.buildInputs;
+      runtimeInputs = cli.runtimeInputs;
     }
   ) cfg.clis;
 in
@@ -46,13 +47,18 @@ in
                 '';
               };
 
+              version = lib.mkOption {
+                type = lib.types.str;
+                description = "Version of this CLI.";
+              };
+
               cmd = lib.mkOption {
                 type = lib.types.str;
                 default = name;
                 description = "Command name, defaults to the attribute name.";
               };
 
-              buildInputs = lib.mkOption {
+              runtimeInputs = lib.mkOption {
                 type = lib.types.listOf lib.types.package;
                 default = [ ];
                 description = "Runtime dependencies prepended to `PATH`.";

@@ -6,109 +6,61 @@
 #
 #   mkSubDerivation pkgs {
 #     pname = "hat";
+#     version = "1.0.0";
 #     src = ./.;
-#     buildInputs = [ pkgs.jq ];
+#     runtimeInputs = [ pkgs.jq ];
 #   }
 #
-# `buildInputs` are runtime dependencies: they are prepended to `PATH` by the
+# `runtimeInputs` are runtime dependencies: they are prepended to `PATH` by the
 # generated entry point, so scripts can call them.
 pkgs:
 {
   pname,
-  cmd ? pname,
+  version,
+  command ? pname,
   sub ? pkgs.callPackage ../packages/sub.nix { },
-  buildInputs ? [ ],
-  ...
-}@args:
+  runtimeInputs ? [ ],
+  src,
+  meta ? { },
+  passthru ? { },
+}:
 let
-  inherit (pkgs)
-    stdenv
-    lib
-    bash
-    writeTextFile
-    ;
-
-  entryScript = writeTextFile {
-    name = cmd;
-    executable = true;
-    destination = "/bin/${cmd}";
+  entryScript = pkgs.writeShellApplication {
+    name = command;
+    inherit runtimeInputs;
     text = ''
-      #!${bash}/bin/bash
-      set -e
-    ''
-    + lib.optionalString (buildInputs != [ ]) ''
-      export PATH="${lib.makeBinPath buildInputs}:$PATH"
-    ''
-    + ''
-      root="$(cd "$(dirname "''${BASH_SOURCE[0]}")/.." && pwd)"
-      exec ${sub}/bin/sub --name ${cmd} --absolute "$root/opt/${pname}" -- "$@"
+      exec ${sub}/bin/sub --name ${command} --executable "''${BASH_SOURCE[0]}" --relative "../root" -- "$@"
     '';
   };
 
-  zshCompletion = writeTextFile {
-    name = "_${cmd}";
-    destination = "/share/zsh/site-functions/_${cmd}";
-    text = ''
-      #compdef ${cmd}
-
-      _${cmd}() {
-        local -a completions
-        if (( ''${#words} == 2 )); then
-          completions=(''${(@f)$(${cmd} --completions)})
-        else
-          completions=(''${(@f)$(${cmd} --completions ''${words[@]:1:-1})})
-        fi
-        _describe 'command' completions
-      }
-
-      compdef _${cmd} ${cmd}
-    '';
-  };
-
-  bashCompletion = writeTextFile {
-    name = cmd;
-    destination = "/share/bash-completion/completions/${cmd}";
-    text = ''
-      _${cmd}() {
-        local cur
-        cur="''${COMP_WORDS[COMP_CWORD]}"
-        COMPREPLY=( $(compgen -W "$(${cmd} --completions)" -- "$cur") )
-      }
-      complete -F _${cmd} ${cmd}
-    '';
-  };
+  bashCompletion = pkgs.writeText command ''
+    _${command}() {
+      local cur
+      cur="''${COMP_WORDS[COMP_CWORD]}"
+      COMPREPLY=( $(compgen -W "$(${command} --completions)" -- "$cur") )
+    }
+    complete -F _${command} ${command}
+  '';
 in
-stdenv.mkDerivation (
-  builtins.removeAttrs args [ "sub" ]
-  // {
-    pname = pname;
-    version = args.version or "0.0.0";
+pkgs.stdenv.mkDerivation {
+  inherit
+    pname
+    src
+    version
+    meta
+    passthru
+    ;
+  buildPhase = "true";
+  installPhase = ''
+    runHook preInstall
 
-    buildPhase = "true";
+    mkdir -p $out/bin
 
-    installPhase = ''
-      runHook preInstall
+    cp -a . $out/root/
 
-      mkdir -p $out/bin $out/opt/${pname}
+    install -Dm755 ${entryScript}/bin/${command} $out/bin/${command}
+    install -Dm644 ${bashCompletion} $out/share/bash-completion/completions/${command}
 
-      install -Dm755 ${entryScript}/bin/${cmd} $out/bin/${cmd}
-
-      if [ -d libexec ]; then
-        mkdir -p $out/opt/${pname}/libexec
-        cp -a libexec/. $out/opt/${pname}/libexec/
-      fi
-
-      if [ -d lib ]; then
-        mkdir -p $out/opt/${pname}/lib
-        cp -a lib/. $out/opt/${pname}/lib/
-      fi
-
-      install -Dm644 ${zshCompletion}/share/zsh/site-functions/_${cmd} \
-        $out/share/zsh/site-functions/_${cmd}
-      install -Dm644 ${bashCompletion}/share/bash-completion/completions/${cmd} \
-        $out/share/bash-completion/completions/${cmd}
-
-      runHook postInstall
-    '';
-  }
-)
+    runHook postInstall
+  '';
+}
