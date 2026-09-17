@@ -28,7 +28,5 @@
       homeManagerModules.sub-nix = ./home-manager-modules/sub-nix.nix;
 
       nixosModules.sub-nix = ./nixos-modules/sub-nix.nix;
-
-      formatter = eachSystem (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
     };
 }
