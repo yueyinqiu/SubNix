@@ -20,12 +20,11 @@
     in
     {
       packages = eachSystem (system: {
-        default = nixpkgs.legacyPackages.${system}.callPackage ./packages/sub.nix { };
+        sub = nixpkgs.legacyPackages.${system}.callPackage ./packages/sub.nix { };
       });
 
       lib = eachSystem (system: {
-        # Per-system, matching upstream's API: args -> drv.
-        mkSubDerivation = import ./lib/mk-sub-derivation.nix nixpkgs.legacyPackages.${system};
+        makeSubCli = import ./lib/mk-sub-derivation.nix nixpkgs.legacyPackages.${system};
       });
 
       homeManagerModules.default = ./modules/home-manager.nix;
