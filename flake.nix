@@ -27,9 +27,9 @@
         makeSubCli = import ./lib/make-sub-cli.nix nixpkgs.legacyPackages.${system};
       });
 
-      homeManagerModules.default = ./modules/home-manager.nix;
+      homeManagerModules.sub-nix = ./home-manager-modules/sub-nix.nix;
 
-      nixosModules.default = ./modules/nixos.nix;
+      nixosModules.sub-nix = ./nixos-modules/sub-nix.nix;
 
       formatter = eachSystem (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
     };
