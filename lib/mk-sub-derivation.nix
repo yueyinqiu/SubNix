@@ -1,10 +1,10 @@
 # Build a CLI package from a source tree containing a `libexec/` directory
 # (and optionally a `lib/` directory for shared code).
 #
-# The returned function is intentionally curried so it does not bind to a
-# particular system or `sub` package:
+# `sub` is the `sub` binary the generated entry point runs; it defaults to
+# this flake's own package and can be overridden per call:
 #
-#   mkSubDerivationFor pkgs sub {
+#   mkSubDerivation pkgs {
 #     pname = "hat";
 #     src = ./.;
 #     buildInputs = [ pkgs.jq ];
@@ -12,10 +12,11 @@
 #
 # `buildInputs` are runtime dependencies: they are prepended to `PATH` by the
 # generated entry point, so scripts can call them.
-pkgs: sub:
+pkgs:
 {
   pname,
   cmd ? pname,
+  sub ? pkgs.callPackage ../packages/sub.nix { },
   buildInputs ? [ ],
   ...
 }@args:
@@ -78,7 +79,7 @@ let
   };
 in
 stdenv.mkDerivation (
-  args
+  builtins.removeAttrs args [ "sub" ]
   // {
     pname = pname;
     version = args.version or "0.0.0";

@@ -1,7 +1,3 @@
-# home-manager module. Injected with `mkSubDerivationFor` and `subPackages`
-# (see flake.nix) so it never needs to reference `self` or an overlay.
-{ mkSubDerivationFor, subPackages }:
-
 {
   config,
   lib,
@@ -12,9 +8,9 @@
 let
   cfg = config.programs.subnix;
 
-  inherit (pkgs.stdenv.hostPlatform) system;
+  mkSubDerivationFor = import ../lib/mk-sub-derivation.nix;
 
-  mkSubDerivation = mkSubDerivationFor pkgs subPackages.${system};
+  mkSubDerivation = args: mkSubDerivationFor pkgs (args // { sub = cfg.package; });
 
   cliDrvs = lib.mapAttrs (
     name: cli:
@@ -32,7 +28,8 @@ in
 
     package = lib.mkOption {
       type = lib.types.package;
-      default = subPackages.${system};
+      default = pkgs.callPackage ../packages/sub.nix { };
+      defaultText = lib.literalExpression "pkgs.callPackage ../packages/sub.nix { }";
       description = "The `sub` package to install.";
     };
 

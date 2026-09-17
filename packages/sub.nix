@@ -1,15 +1,19 @@
 {
   lib,
   rustPlatform,
-  src,
+  fetchFromGitHub,
 }:
 
-rustPlatform.buildRustPackage {
+rustPlatform.buildRustPackage rec {
   pname = "sub";
-  # Keep in sync with upstream Cargo.toml.
   version = "2.3.1";
 
-  inherit src;
+  src = fetchFromGitHub {
+    owner = "juanibiapina";
+    repo = "sub";
+    rev = "v${version}";
+    hash = "sha256-iE8b912YGlJ3ibezxScrc9T0up7jVjECPWtbr0edIuo=";
+  };
 
   cargoLock = {
     lockFile = "${src}/Cargo.lock";
@@ -20,6 +24,9 @@ rustPlatform.buildRustPackage {
     homepage = "https://github.com/juanibiapina/sub";
     license = lib.licenses.mit;
     mainProgram = "sub";
-    platforms = lib.platforms.linux ++ lib.platforms.darwin;
+    platforms = [
+      "x86_64-linux"
+      "aarch64-darwin"
+    ];
   };
 }
