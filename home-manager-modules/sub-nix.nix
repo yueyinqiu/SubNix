@@ -6,25 +6,22 @@
 }:
 
 let
-  cfg = config.programs.subnix;
+  cfg = config.programs."sub-nix";
 
-  mkSubDerivationFor = import ../lib/make-sub-cli.nix;
-
-  mkSubDerivation = args: mkSubDerivationFor pkgs (args // { sub = cfg.package; });
+  makeSubCli = import ../lib/make-sub-cli.nix pkgs;
 
   cliDrvs = lib.mapAttrs (
     name: cli:
-    mkSubDerivation {
+    makeSubCli {
       pname = name;
-      version = cli.version;
-      command = cli.command;
+      inherit (cli) version command runtimeInputs;
       src = cli.scripts;
-      runtimeInputs = cli.runtimeInputs;
+      sub = cfg.package;
     }
   ) cfg.clis;
 in
 {
-  options.programs.subnix = {
+  options.programs."sub-nix" = {
     enable = lib.mkEnableOption "sub-based CLIs";
 
     package = lib.mkOption {
