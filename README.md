@@ -85,7 +85,7 @@ The generated CLI provides:
 
       clis.hat = {
         version = "1.0.0";
-        scripts = ./cli;               # directory containing libexec/
+        src = ./cli;                   # directory containing libexec/
         command = "hat";               # optional, defaults to the attribute name
         runtimeInputs = [ pkgs.jq ];   # optional
       };
@@ -106,7 +106,7 @@ The generated CLI provides:
 
       clis.hat = {
         version = "1.0.0";
-        scripts = ./cli;
+        src = ./cli;
       };
     };
   };
@@ -125,7 +125,7 @@ Each CLI in `clis` accepts:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| `scripts` | path | Directory containing `libexec/` (and optionally `lib/`) |
+| `src` | path | Directory containing `libexec/` (and optionally `lib/`) |
 | `version` | str | Version of this CLI |
 | `command` | str | Command name, defaults to the attribute name |
 | `runtimeInputs` | list of package | Runtime dependencies prepended to `PATH` |

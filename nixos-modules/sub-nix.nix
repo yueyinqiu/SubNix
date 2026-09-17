@@ -25,7 +25,7 @@ in
         lib.types.submodule (
           { name, ... }: {
             options = {
-              scripts = lib.mkOption {
+              src = lib.mkOption {
                 type = lib.types.path;
                 description = ''
                   Directory containing a `libexec/` directory (and optionally a
@@ -69,7 +69,7 @@ in
         version = cli.version;
         command = cli.command;
         runtimeInputs = cli.runtimeInputs;
-        src = cli.scripts;
+        src = cli.src;
         sub = cfg.package;
       }
     ) cfg.clis;
