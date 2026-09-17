@@ -49,6 +49,7 @@ pkgs.stdenv.mkDerivation {
 
     install -Dm755 "${entry}/bin/${command}" "$out/bin/${command}"
     substituteInPlace "$out/bin/${command}" --replace-fail "@out@" "$out"
+
     install -Dm644 "${bashCompletion}" "$out/share/bash-completion/completions/${command}"
     substituteInPlace "$out/share/bash-completion/completions/${command}" --replace-fail "@out@" "$out"
 
