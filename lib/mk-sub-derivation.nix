@@ -13,9 +13,19 @@
 # `buildInputs` are runtime dependencies: they are prepended to `PATH` by the
 # generated entry point, so scripts can call them.
 pkgs: sub:
-{ pname, cmd ? pname, buildInputs ? [ ], ... } @ args:
+{
+  pname,
+  cmd ? pname,
+  buildInputs ? [ ],
+  ...
+}@args:
 let
-  inherit (pkgs) stdenv lib bash writeTextFile;
+  inherit (pkgs)
+    stdenv
+    lib
+    bash
+    writeTextFile
+    ;
 
   entryScript = writeTextFile {
     name = cmd;
@@ -24,9 +34,11 @@ let
     text = ''
       #!${bash}/bin/bash
       set -e
-    '' + lib.optionalString (buildInputs != [ ]) ''
+    ''
+    + lib.optionalString (buildInputs != [ ]) ''
       export PATH="${lib.makeBinPath buildInputs}:$PATH"
-    '' + ''
+    ''
+    + ''
       root="$(cd "$(dirname "''${BASH_SOURCE[0]}")/.." && pwd)"
       exec ${sub}/bin/sub --name ${cmd} --absolute "$root/opt/${pname}" -- "$@"
     '';
@@ -65,34 +77,37 @@ let
     '';
   };
 in
-stdenv.mkDerivation (args // {
-  pname = pname;
-  version = args.version or "0.0.0";
+stdenv.mkDerivation (
+  args
+  // {
+    pname = pname;
+    version = args.version or "0.0.0";
 
-  buildPhase = "true";
+    buildPhase = "true";
 
-  installPhase = ''
-    runHook preInstall
+    installPhase = ''
+      runHook preInstall
 
-    mkdir -p $out/bin $out/opt/${pname}
+      mkdir -p $out/bin $out/opt/${pname}
 
-    install -Dm755 ${entryScript}/bin/${cmd} $out/bin/${cmd}
+      install -Dm755 ${entryScript}/bin/${cmd} $out/bin/${cmd}
 
-    if [ -d libexec ]; then
-      mkdir -p $out/opt/${pname}/libexec
-      cp -a libexec/. $out/opt/${pname}/libexec/
-    fi
+      if [ -d libexec ]; then
+        mkdir -p $out/opt/${pname}/libexec
+        cp -a libexec/. $out/opt/${pname}/libexec/
+      fi
 
-    if [ -d lib ]; then
-      mkdir -p $out/opt/${pname}/lib
-      cp -a lib/. $out/opt/${pname}/lib/
-    fi
+      if [ -d lib ]; then
+        mkdir -p $out/opt/${pname}/lib
+        cp -a lib/. $out/opt/${pname}/lib/
+      fi
 
-    install -Dm644 ${zshCompletion}/share/zsh/site-functions/_${cmd} \
-      $out/share/zsh/site-functions/_${cmd}
-    install -Dm644 ${bashCompletion}/share/bash-completion/completions/${cmd} \
-      $out/share/bash-completion/completions/${cmd}
+      install -Dm644 ${zshCompletion}/share/zsh/site-functions/_${cmd} \
+        $out/share/zsh/site-functions/_${cmd}
+      install -Dm644 ${bashCompletion}/share/bash-completion/completions/${cmd} \
+        $out/share/bash-completion/completions/${cmd}
 
-    runHook postInstall
-  '';
-})
+      runHook postInstall
+    '';
+  }
+)

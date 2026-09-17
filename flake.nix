@@ -13,7 +13,12 @@
     };
   };
 
-  outputs = { self, nixpkgs, sub-src }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      sub-src,
+    }:
     let
       systems = [
         "x86_64-linux"
@@ -28,7 +33,8 @@
       mkSubDerivationFor = import ./lib/mk-sub-derivation.nix;
     in
     {
-      packages = eachSystem (system:
+      packages = eachSystem (
+        system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
           sub = pkgs.callPackage ./packages/sub.nix { src = sub-src; };
@@ -41,8 +47,12 @@
 
       lib = {
         inherit mkSubDerivationFor;
-      } // eachSystem (system:
-        let pkgs = nixpkgs.legacyPackages.${system}; in
+      }
+      // eachSystem (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
         {
           # Convenience, per-system, matching upstream's API: args -> drv.
           mkSubDerivation = mkSubDerivationFor pkgs self.packages.${system}.sub;
@@ -52,17 +62,17 @@
       homeManagerModules = {
         default = import ./modules/home-manager.nix {
           inherit mkSubDerivationFor;
-          subPackages = self.packages;
+          subPackages = eachSystem (system: self.packages.${system}.sub);
         };
       };
 
       nixosModules = {
         default = import ./modules/nixos.nix {
           inherit mkSubDerivationFor;
-          subPackages = self.packages;
+          subPackages = eachSystem (system: self.packages.${system}.sub);
         };
       };
 
-      formatter = eachSystem (system: nixpkgs.legacyPackages.${system}.nixfmt-rfc-style);
+      formatter = eachSystem (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
     };
 }
