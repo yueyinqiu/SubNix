@@ -30,10 +30,10 @@ The `sub` binary itself:
 sub-nix.packages.${system}.sub
 ```
 
-Or from the CLI:
+Or try it directly from the CLI:
 
 ```console
-$ nix build .#sub
+$ nix shell github:yueyinqiu/SubNix#sub
 ```
 
 ## Lib
@@ -67,6 +67,10 @@ The generated CLI provides:
 
 - an entry point at `bin/<command>` running `sub --absolute .../root`
 - bash completion at `share/bash-completion/completions/<command>`
+
+> sub provides `--completions` but no official guidance on wiring it into a
+> shell, so the completion here is hand-written — and only bash is covered for
+> now. Contributions for other shells are welcome.
 
 ## home-manager
 
