@@ -11,17 +11,17 @@
       nixpkgs,
     }:
     let
-      eachSystem = nixpkgs.lib.genAttrs [
+      forAllSystems = nixpkgs.lib.genAttrs [
         "x86_64-linux"
         "aarch64-darwin"
       ];
     in
     {
-      packages = eachSystem (system: {
+      packages = forAllSystems (system: {
         sub = nixpkgs.legacyPackages.${system}.callPackage ./packages/sub.nix { };
       });
 
-      lib = eachSystem (system: {
+      lib = forAllSystems (system: {
         makeSubCli = import ./lib/make-sub-cli.nix nixpkgs.legacyPackages.${system};
       });
 
