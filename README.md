@@ -65,7 +65,7 @@ Parameters:
 
 The generated CLI provides:
 
-- an entry point at `bin/<command>` running `sub --absolute .../root`
+- an entry point at `bin/<command>` running `sub --absolute <src>`
 - bash completion at `share/bash-completion/completions/<command>`
 
 > sub provides `--completions` but no official guidance on wiring it into a

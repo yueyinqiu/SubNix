@@ -20,7 +20,7 @@ let
     name = command;
     inherit runtimeInputs;
     text = ''
-      exec "${sub}/bin/sub" --name "${command}" --absolute "@out@/root" -- "$@"
+      exec "${sub}/bin/sub" --name "${command}" --absolute "${src}" -- "$@"
     '';
   };
 
@@ -35,7 +35,6 @@ let
 in
 pkgs.stdenv.mkDerivation {
   pname = pname;
-  src = src;
   version = version;
   meta = meta;
   passthru = passthru;
@@ -45,10 +44,7 @@ pkgs.stdenv.mkDerivation {
 
     mkdir -p "$out/bin"
 
-    cp -a . "$out/root/"
-
     install -Dm755 "${entry}/bin/${command}" "$out/bin/${command}"
-    substituteInPlace "$out/bin/${command}" --replace-fail "@out@" "$out"
 
     install -Dm644 "${bashCompletion}" "$out/share/bash-completion/completions/${command}"
     substituteInPlace "$out/share/bash-completion/completions/${command}" --replace-fail "@out@" "$out"
