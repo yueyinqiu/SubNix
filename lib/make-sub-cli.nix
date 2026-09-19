@@ -38,6 +38,7 @@ pkgs.stdenv.mkDerivation {
   version = version;
   meta = meta;
   passthru = passthru;
+  dontUnpack = true;
   buildPhase = "true";
   installPhase = ''
     runHook preInstall
