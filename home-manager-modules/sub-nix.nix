@@ -17,7 +17,13 @@ in
     package = lib.mkOption {
       type = lib.types.package;
       default = pkgs.callPackage ../packages/sub.nix { };
-      description = "The `sub` package to install.";
+      description = "The `sub` package used to build the CLIs.";
+    };
+
+    installSub = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Whether to install the `sub` binary itself.";
     };
 
     clis = lib.mkOption {
@@ -59,19 +65,18 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    home.packages = [
-      cfg.package
-    ]
-    ++ lib.mapAttrsToList (
-      name: cli:
-      makeSubCli {
-        pname = name;
-        version = cli.version;
-        command = cli.command;
-        runtimeInputs = cli.runtimeInputs;
-        src = cli.src;
-        sub = cfg.package;
-      }
-    ) cfg.clis;
+    home.packages =
+      (lib.optional cfg.installSub cfg.package)
+      ++ lib.mapAttrsToList (
+        name: cli:
+        makeSubCli {
+          pname = name;
+          version = cli.version;
+          command = cli.command;
+          runtimeInputs = cli.runtimeInputs;
+          src = cli.src;
+          sub = cfg.package;
+        }
+      ) cfg.clis;
   };
 }

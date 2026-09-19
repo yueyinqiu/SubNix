@@ -118,7 +118,8 @@ Options under `programs."sub-nix"`:
 | Name | Type | Description |
 | --- | --- | --- |
 | `enable` | bool | Whether to enable sub-based CLIs |
-| `package` | package | The `sub` package to install |
+| `package` | package | The `sub` package used to build the CLIs |
+| `installSub` | bool | Whether to install the `sub` binary itself, defaults to `true` |
 | `clis` | attrsOf submodule | CLIs to build and install |
 
 Each CLI in `clis` accepts:
