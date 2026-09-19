@@ -24,9 +24,6 @@ rustPlatform.buildRustPackage rec {
     homepage = "https://github.com/juanibiapina/sub";
     license = lib.licenses.mit;
     mainProgram = "sub";
-    platforms = [
-      "x86_64-linux"
-      "aarch64-darwin"
-    ];
+    platforms = lib.platforms.linux ++ lib.platforms.darwin;
   };
 }
